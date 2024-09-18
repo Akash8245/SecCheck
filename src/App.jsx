@@ -3,6 +3,7 @@ import Nav from './components/Nav';
 import Home from './components/Home';
 import Password from './components/Password';
 import Database from './components/Database';
+import Domain from './components/Domain';
 
 function App() {
   return (
@@ -12,6 +13,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/password" element={<Password />} />
         <Route path="/Database" element={<Database />} />
+        <Route path="/domain" element={<Domain />} />
+
       </Routes>
     </Router>
   );
