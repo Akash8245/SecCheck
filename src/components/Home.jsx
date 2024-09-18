@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import image from '../assets/image.png'
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -64,11 +65,11 @@ export default function Home() {
           </form>
         </div>
         <div className='w-full md:w-1/2'>
-          <video
-            src="https://example.com/video.mp4"
-            className='md:w-full max-w-screen-lg mx-auto'
+          {/* <img
+            src={image}
+            className='md:w-full max-w-screen-lg mx-auto  h-[700px] ' 
             loop muted playsInline
-          />
+          /> */}
         </div>
       </div>
 

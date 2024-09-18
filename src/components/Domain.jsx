@@ -14,7 +14,7 @@ const Domain = () => {
     try {
       const response = await axios.post('https://api.xposedornot.com/v1/domain-breaches/', {
         headers: {
-          'x-api-key': 'YOUR_API_KEY_HERE',
+          'x-api-key': '0ef9f49ae62860584f8db06faf3f5bd5',
           'Content-Length': '0',
         },
       });
