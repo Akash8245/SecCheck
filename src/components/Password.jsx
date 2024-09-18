@@ -1,34 +1,49 @@
 import React, { useState } from 'react';
-import CryptoJS from 'crypto-js';
+import { keccak_512 } from 'js-sha3'; 
 
 export default function Password() {
   const [password, setPassword] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
-  // Function to handle password check
+  const keccakHash = (pwd) => {
+    const hash = keccak_512(pwd);
+    console.log('Hashed Password:', hash); 
+    return hash.substring(0, 10); 
+  };
+
+  // Function to check the password
   const checkPassword = async () => {
-    try {
-      // Hash the password using SHA3-keccak-512
-      const hashedPassword = CryptoJS.SHA3(password, { outputLength: 512 }).toString(CryptoJS.enc.Hex);
-      const first10Chars = hashedPassword.slice(0, 10);
+    if (password.length > 0) {
+      try {
+        const pwdHash = keccakHash(password);
+        const encodedPwdHash = encodeURIComponent(pwdHash);
+        const apiUrl = `https://passwords.xposedornot.com/v1/pass/anon/${encodedPwdHash}`;
 
-      console.log('Hashed Password:', hashedPassword); // Log to verify hash
-      console.log('First 10 Chars:', first10Chars); // Log to verify first 10 chars
+        console.log('API URL:', apiUrl); // Log the API URL for debugging
 
-      // API endpoint
-      const apiUrl = `https://passwords.xposedornot.com/v1/pass/anon/${first10Chars}`;
-      console.log('API URL:', apiUrl);
+        const response = await fetch(apiUrl);
+        console.log('Response Status:', response.status); // Log the response status
 
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('API Response:', data); // Log the API response
+          setResult(data);
+          setError(null);
+        } else if (response.status === 404) {
+          console.log('Password is safe');
+          setResult({ message: 'Password is safe' });
+          setError(null);
+        } else {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Error fetching the password check:', error); // Log the error
+        setError(error.message);
+        setResult(null);
       }
-      const data = await response.json();
-      setResult(data);
-      setError(null);
-    } catch (error) {
-      setError(error.message);
+    } else {
+      setError('Oops! Try again with a valid password.');
       setResult(null);
     }
   };
@@ -54,13 +69,16 @@ export default function Password() {
       {result && (
         <div>
           <h3>Result:</h3>
-          <pre>{JSON.stringify(result, null, 2)}</pre>
-          <div>
-            <h4>Characteristics:</h4>
-            <p><strong>Anon:</strong> {result.SearchPassAnon.anon}</p>
-            <p><strong>Char:</strong> {result.SearchPassAnon.char}</p>
-            <p><strong>Count:</strong> {result.SearchPassAnon.count}</p>
-          </div>
+          {/* <pre>{JSON.stringify(result, null, 2)}</pre> */}
+          {result.message && <p>{result.message}</p>}
+          {result.SearchPassAnon && (
+            <div>
+              <h4>Characteristics:</h4>
+              <p><strong>Anon:</strong> {result.SearchPassAnon.anon}</p>
+              <p><strong>Char:</strong> {result.SearchPassAnon.char}</p>
+              <p><strong>Count:</strong> {result.SearchPassAnon.count}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
